@@ -1,0 +1,39 @@
+# URL do arquivo ZIP
+$url = "https://github.com/devxdfps/appnovo/raw/main/ISLC%20v1.0.3.2.zip"
+
+# Caminho completo para onde o arquivo ZIP será baixado (no disco C)
+$caminhoPasta = "C:\ISLC"
+
+# Verifica se a pasta de destino existe, se não, cria a pasta
+if (-not (Test-Path -Path $caminhoPasta)) {
+    New-Item -Path $caminhoPasta -ItemType Directory -Force
+}
+
+# Caminho completo para o arquivo ZIP
+$caminhoArquivoZip = Join-Path -Path $caminhoPasta -ChildPath "ISLC.zip"
+
+# Baixa o arquivo ZIP da URL especificada e o salva no caminho especificado
+Invoke-WebRequest -Uri $url -OutFile $caminhoArquivoZip
+
+# Verifica se o arquivo ZIP foi baixado com sucesso
+if (Test-Path $caminhoArquivoZip) {
+    Write-Host "Arquivo ZIP baixado com sucesso em $caminhoArquivoZip."
+
+    # Extrai o conteúdo do ZIP para o diretório especificado
+    Expand-Archive -Path $caminhoArquivoZip -DestinationPath $caminhoPasta -Force
+
+    # Caminho completo para o arquivo executável
+    $caminhoExe = Join-Path -Path $caminhoPasta -ChildPath "ISLC v1.0.3.2\Intelligent standby list cleaner ISLC.exe"
+
+    # Verifica se o arquivo executável existe após a extração
+    if (Test-Path $caminhoExe) {
+        Write-Host "Arquivo executável encontrado em $caminhoExe."
+
+        # Executa o arquivo executável como administrador
+        Start-Process -FilePath $caminhoExe -Verb RunAs
+    } else {
+        Write-Host "Arquivo executável não encontrado após extração."
+    }
+} else {
+    Write-Host "Falha ao baixar o arquivo ZIP."
+}
